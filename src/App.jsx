@@ -30,7 +30,7 @@ export const App = () => {
           setPictures(prevState => [...prevState, ...res.hits]);
           setIsLoading(false);
         })
-        .catch(setError);
+        .catch(error => setError(error));
     };
     getPictures();
   }, [search, page]);
@@ -52,6 +52,7 @@ export const App = () => {
   return (
     <Container>
       <Searchbar onSubmit={handleSubmit} />
+      {error && <p>{error.message}</p>}
       <ImageGallery
         images={pictures}
         setActiveImage={setActiveImage}
