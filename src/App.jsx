@@ -1,90 +1,71 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from 'components/Searchbar/Searchbar';
 import { ToastContainer } from 'react-toastify';
 import Loader from 'components/Loader/Loader';
 import Button from 'components/Button/Button';
-import Modal from 'components/Modal/Modal';
+import { Modal } from 'components/Modal/Modal';
 import { searchPictures } from 'servises/api';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Container } from 'components/Container/Container.styled';
 
-export class App extends React.Component {
-  state = {
-    search: '',
-    page: 1,
-    error: null,
-    pictures: [],
-    showModal: false,
-    activeImage: null,
-    isLoading: false,
-  };
+export const App = () => {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [pictures, setPictures] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [activeImage, setActiveImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalPages, settotalPages] = useState(null);
 
-  componentDidUpdate(_, prevState) {
-    const { search, page } = this.state;
-
-    if (prevState.page !== page || prevState.search !== search) {
-      this.setState({ isLoading: true });
+  useEffect(() => {
+    if (search === '') {
+      return;
+    }
+    const getPictures = () => {
+      setIsLoading(true);
       searchPictures(search, page)
         .then(res => {
-          console.log(res.hits);
-          this.setState(prevState => ({
-            pictures: [...prevState.pictures, ...res.hits],
-          }));
-          this.setState({ isLoading: false });
+          settotalPages(Math.ceil(res.total / 12));
+          setPictures(prevState => [...prevState, ...res.hits]);
+          setIsLoading(false);
         })
-        .catch(error => this.setState({ error }));
-    }
-  }
+        .catch(setError);
+    };
+    getPictures();
+  }, [search, page]);
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  handleSubmit = event => {
-    this.setState({
-      page: 1,
-      search: event.target.elements.search.value,
-      pictures: [],
-    });
-    event.target.reset();
+  const handleSubmit = search => {
+    setPage(1);
+    setSearch(search);
+    setPictures([]);
   };
 
-  toggleModal = () => {
-    this.setState(state => ({
-      showModal: !state.showModal,
-    }));
+  const toggleModal = () => {
+    setShowModal(state => !state);
   };
 
-  setActiveImage = imageUrl => {
-    this.setState({ activeImage: imageUrl });
-  };
+  return (
+    <Container>
+      <Searchbar onSubmit={handleSubmit} />
+      <ImageGallery
+        images={pictures}
+        setActiveImage={setActiveImage}
+        onClickImage={toggleModal}
+      />
+      <ToastContainer autoClose={3000} />
 
-  handleSearchFormSubmit = search => {
-    this.setState({ search });
-  };
-  render() {
-    const { pictures, isLoading, activeImage } = this.state;
-    return (
-      <Container>
-        <Searchbar onSubmit={this.handleSearchFormSubmit} />
-        <ImageGallery
-          images={pictures}
-          setActiveImage={this.setActiveImage}
-          onClickImage={this.toggleModal}
-        />
-        <ToastContainer autoClose={3000} />
-        <Button onClick={this.loadMore} />
+      {isLoading && <Loader />}
 
-        {isLoading && <Loader />}
-        {/*  {pictures.length !== 0 && <Button onClick={this.loadMore} />}
-        {Button.disable = true; } */}
+      {pictures.length >= 12 && page < totalPages && (
+        <Button onClick={loadMore} />
+      )}
 
-        {this.state.showModal && (
-          <Modal onClose={this.toggleModal} activeImage={activeImage} />
-        )}
-      </Container>
-    );
-  }
-}
+      {showModal && <Modal onClose={toggleModal} activeImage={activeImage} />}
+    </Container>
+  );
+};
