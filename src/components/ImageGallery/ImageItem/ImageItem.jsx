@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { ImageContainer, Image } from './ImageGallery.styled';
+import { ImageContainer, Image } from './ImageItem.styled';
 
-export const ImageGalleryItem = ({ image, onClick }) => {
+export const ImageItem = ({ image, onClick }) => {
   return (
     <ImageContainer>
       <Image src={image.webformatURL} alt={image.tags} onClick={onClick} />
@@ -9,7 +9,7 @@ export const ImageGalleryItem = ({ image, onClick }) => {
   );
 };
 
-ImageGalleryItem.propTypes = {
+ImageItem.propTypes = {
   image: PropTypes.object.isRequired,
   onClick: PropTypes.func.isRequired,
 };

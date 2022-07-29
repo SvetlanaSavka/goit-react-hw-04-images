@@ -1,13 +1,11 @@
 import PropTypes from 'prop-types';
 import { ButtonClick } from './Button.styled';
 
-const Button = ({ onClick }) => {
+const Button = ({ onClick, children }) => {
   return (
-    <>
-      <ButtonClick type="button" onClick={onClick}>
-        Load more
-      </ButtonClick>
-    </>
+    <ButtonClick type="button" onClick={onClick}>
+      {children}
+    </ButtonClick>
   );
 };
 

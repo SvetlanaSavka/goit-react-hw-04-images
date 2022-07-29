@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
-import { ImageGalleryItem } from './ImageGalleryItem';
+import { ImageItem } from './ImageItem/ImageItem';
 import { Container } from './ImageGallery.styled';
 
 export const ImageGallery = ({ images, setActiveImage, onClickImage }) => {
   return (
     <Container>
       {images.map(image => (
-        <ImageGalleryItem
+        <ImageItem
           key={image.id}
           image={image}
           onClick={() => {
